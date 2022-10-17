@@ -33,6 +33,7 @@ private const val ATTR_DATA = "data"
 private const val ATTR_FLAGS = "flags"
 private const val ATTR_PACKAGE_NAME = "packageName"
 private const val ATTR_CLASS_NAME = "className"
+private const val ATTR_EXTRA_INTENT = "android.intent.extra.INTENT"
 
 class IntentLauncherModule(
 	context: Context,
@@ -81,20 +82,8 @@ class IntentLauncherModule(
 		return bundle
 	}
 
-	@ExpoMethod
-	fun startActivity(activityAction: String, params: Map<String, Any?>, promise: Promise) {
-		if (pendingPromise != null) {
-			promise.reject(ActivityAlreadyStartedException())
-			return
-		}
-
-		val activity = activityProvider.currentActivity
-		if (activity == null) {
-			promise.reject(CurrentActivityNotFoundException())
-			return
-		}
-
-		val intent = Intent(activityAction)
+	fun createIntent(params: Map<String, Any?>): Intent {
+		val intent = Intent()
 
 		if (params.containsKey(ATTR_CLASS_NAME)) {
 			intent.component = if (params.containsKey(ATTR_PACKAGE_NAME)) {
@@ -105,6 +94,10 @@ class IntentLauncherModule(
 			} else {
 				ComponentName(context, params.get(ATTR_CLASS_NAME) as String)
 			}
+		}
+
+		if (params.containsKey(ATTR_ACTION)) {
+			intent.setAction(params.get(ATTR_ACTION) as String)
 		}
 
 		// `setData` and `setType` are exclusive, so we need to use `setDateAndType` in that case.
@@ -119,7 +112,14 @@ class IntentLauncherModule(
 		}
 
 		if (params.containsKey(ATTR_EXTRA)) {
-			intent.putExtras(mapToBundle(params.get(ATTR_EXTRA) as Map<String, Any?>))
+			val extra = (params.get(ATTR_EXTRA) as Map<String, Any?>).toMutableMap()
+			
+			if (extra.containsKey(ATTR_EXTRA_INTENT)) {
+				val extraIntent = createIntent(extra.get(ATTR_EXTRA_INTENT) as Map<String, Any?>)
+				extra.set(ATTR_EXTRA_INTENT, extraIntent)
+			}
+			
+			intent.putExtras(mapToBundle(extra))
 		}
 
 		if (params.containsKey(ATTR_FLAGS)) {
@@ -129,6 +129,24 @@ class IntentLauncherModule(
 		if (params.containsKey(ATTR_CATEGORY)) {
 			intent.addCategory(params.get(ATTR_CATEGORY) as String)
 		}
+
+		return intent
+	}
+
+	@ExpoMethod
+	fun startActivity(params: Map<String, Any?>, promise: Promise) {
+		if (pendingPromise != null) {
+			promise.reject(ActivityAlreadyStartedException())
+			return
+		}
+
+		val activity = activityProvider.currentActivity
+		if (activity == null) {
+			promise.reject(CurrentActivityNotFoundException())
+			return
+		}
+		
+		val intent = createIntent(params)
 
 		uiManager.registerActivityEventListener(this)
 		pendingPromise = promise
