@@ -84,6 +84,11 @@ export declare enum ActivityAction {
     ZEN_MODE_SETTINGS = "android.settings.ZEN_MODE_SETTINGS"
 }
 export interface IntentLauncherParams {
+    /** The action to be performed, e.g. `IntentLauncher.ActivityAction.WIRELESS_SETTINGS`.
+     * There are a few pre-defined constants you can use for this parameter.
+     * You can find them at [expo-intent-launcher/src/IntentLauncher.ts](https://github.com/expo/expo/blob/main/packages/expo-intent-launcher/src/IntentLauncher.ts).
+     */
+    activity: ActivityAction | string;
     /**
      * A string specifying the MIME type of the data represented by the data parameter. Ignore this
      * argument to allow Android to infer the correct MIME type.
@@ -149,11 +154,8 @@ export declare enum ResultCode {
 /**
  * Starts the specified activity. The method will return a promise which resolves when the user
  * returns to the app.
- * @param activityAction The action to be performed, e.g. `IntentLauncher.ActivityAction.WIRELESS_SETTINGS`.
- * There are a few pre-defined constants you can use for this parameter.
- * You can find them at [expo-intent-launcher/src/IntentLauncher.ts](https://github.com/expo/expo/blob/main/packages/expo-intent-launcher/src/IntentLauncher.ts).
  * @param params An object of intent parameters.
  * @return A promise which fulfils with `IntentLauncherResult` object.
  */
-export declare function startActivityAsync(activityAction: ActivityAction | string, params?: IntentLauncherParams): Promise<IntentLauncherResult>;
+export declare function startActivityAsync(params: IntentLauncherParams): Promise<IntentLauncherResult>;
 //# sourceMappingURL=IntentLauncher.d.ts.map

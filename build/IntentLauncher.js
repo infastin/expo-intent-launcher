@@ -107,19 +107,16 @@ export var ResultCode;
 /**
  * Starts the specified activity. The method will return a promise which resolves when the user
  * returns to the app.
- * @param activityAction The action to be performed, e.g. `IntentLauncher.ActivityAction.WIRELESS_SETTINGS`.
- * There are a few pre-defined constants you can use for this parameter.
- * You can find them at [expo-intent-launcher/src/IntentLauncher.ts](https://github.com/expo/expo/blob/main/packages/expo-intent-launcher/src/IntentLauncher.ts).
  * @param params An object of intent parameters.
  * @return A promise which fulfils with `IntentLauncherResult` object.
  */
-export async function startActivityAsync(activityAction, params = {}) {
+export async function startActivityAsync(params) {
     if (!ExpoIntentLauncher.startActivity) {
         throw new UnavailabilityError('IntentLauncher', 'startActivityAsync');
     }
-    if (!activityAction || typeof activityAction !== 'string') {
+    if (!params.activity || typeof params.activity !== 'string') {
         throw new TypeError(`'activityAction' argument must be a non-empty string!`);
     }
-    return ExpoIntentLauncher.startActivity(activityAction, params);
+    return ExpoIntentLauncher.startActivity(params);
 }
 //# sourceMappingURL=IntentLauncher.js.map
