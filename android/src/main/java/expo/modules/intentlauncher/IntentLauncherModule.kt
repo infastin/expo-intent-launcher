@@ -75,6 +75,8 @@ class IntentLauncherModule(
 				bundle.putBundle(key, mapToBundle(value))
 			} else if (value is Bundle) {
 				bundle.putBundle(key, value)
+			} else if (value is Parcelable) {
+				bundle.putParcelable(key, value)
 			} else {
 				throw UnsupportedOperationException("Could not put a value of " + value::class + " to bundle.")
 			}
@@ -123,7 +125,7 @@ class IntentLauncherModule(
 		}
 
 		if (params.containsKey(ATTR_FLAGS)) {
-			intent.addFlags(params.get(ATTR_EXTRA) as Int)
+			intent.addFlags((params.get(ATTR_FLAGS) as Double).toInt())
 		}
 
 		if (params.containsKey(ATTR_CATEGORY)) {

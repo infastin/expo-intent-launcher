@@ -88,7 +88,7 @@ export interface IntentLauncherParams {
      * There are a few pre-defined constants you can use for this parameter.
      * You can find them at [expo-intent-launcher/src/IntentLauncher.ts](https://github.com/expo/expo/blob/main/packages/expo-intent-launcher/src/IntentLauncher.ts).
      */
-    activity: ActivityAction | string;
+    action: ActivityAction | string;
     /**
      * A string specifying the MIME type of the data represented by the data parameter. Ignore this
      * argument to allow Android to infer the correct MIME type.

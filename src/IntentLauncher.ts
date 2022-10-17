@@ -95,7 +95,7 @@ export interface IntentLauncherParams {
 	 * There are a few pre-defined constants you can use for this parameter.
 	 * You can find them at [expo-intent-launcher/src/IntentLauncher.ts](https://github.com/expo/expo/blob/main/packages/expo-intent-launcher/src/IntentLauncher.ts).
 	 */
-	activity: ActivityAction | string;
+	action: ActivityAction | string;
 	/**
 	 * A string specifying the MIME type of the data represented by the data parameter. Ignore this
 	 * argument to allow Android to infer the correct MIME type.
@@ -176,8 +176,8 @@ export async function startActivityAsync(
 	if (!ExpoIntentLauncher.startActivity) {
 		throw new UnavailabilityError('IntentLauncher', 'startActivityAsync');
 	}
-	if (!params.activity || typeof params.activity !== 'string') {
-		throw new TypeError(`'activityAction' argument must be a non-empty string!`);
+	if (!params.action || typeof params.action !== 'string') {
+		throw new TypeError(`'action' parameter must be a non-empty string!`);
 	}
 	return ExpoIntentLauncher.startActivity(params);
 }

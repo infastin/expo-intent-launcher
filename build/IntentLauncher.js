@@ -114,8 +114,8 @@ export async function startActivityAsync(params) {
     if (!ExpoIntentLauncher.startActivity) {
         throw new UnavailabilityError('IntentLauncher', 'startActivityAsync');
     }
-    if (!params.activity || typeof params.activity !== 'string') {
-        throw new TypeError(`'activityAction' argument must be a non-empty string!`);
+    if (!params.action || typeof params.action !== 'string') {
+        throw new TypeError(`'action' parameter must be a non-empty string!`);
     }
     return ExpoIntentLauncher.startActivity(params);
 }
