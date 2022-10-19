@@ -21,17 +21,9 @@
     "intent",
     "launcher"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/expo/expo.git",
-    "directory": "packages/expo-intent-launcher"
-  },
-  "bugs": {
-    "url": "https://github.com/expo/expo/issues"
-  },
   "author": "650 Industries, Inc.",
   "license": "MIT",
-  "homepage": "https://docs.expo.dev/versions/latest/sdk/intent-launcher/",
+  "homepage": "https://github.com/infastin/expo-intent-launcher",
   "dependencies": {
     "expo-modules-core": "^0.11.8"
   },
@@ -40,6 +32,5 @@
   },
   "peerDependencies": {
     "expo": "*"
-  },
-  "gitHead": "e893ff2b01e108cf246cec02318c0df9d6bc603c"
+  }
 }
