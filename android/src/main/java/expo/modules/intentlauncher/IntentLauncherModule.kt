@@ -9,8 +9,12 @@ import expo.modules.core.interfaces.ActivityProvider
 import expo.modules.core.interfaces.services.UIManager
 import expo.modules.core.interfaces.ActivityEventListener
 import expo.modules.core.errors.CurrentActivityNotFoundException
+import expo.modules.core.errors.InvalidArgumentException
 import expo.modules.intentlauncher.exceptions.ActivityAlreadyStartedException
+import expo.modules.interfaces.filesystem.FilePermissionModuleInterface
+import expo.modules.interfaces.filesystem.Permission
 
+import androidx.core.content.FileProvider
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -20,7 +24,7 @@ import android.content.ComponentName
 import android.content.ActivityNotFoundException
 import android.content.Context
 
-import android.util.Log
+import java.io.File
 
 private const val NAME = "ExpoIntentLauncher"
 
@@ -34,6 +38,7 @@ private const val ATTR_FLAGS = "flags"
 private const val ATTR_PACKAGE_NAME = "packageName"
 private const val ATTR_CLASS_NAME = "className"
 private const val ATTR_EXTRA_INTENT = "android.intent.extra.INTENT"
+private const val ATTR_EXTRA_STREAM = "android.intent.extra.STREAM"
 
 class IntentLauncherModule(
 	context: Context,
@@ -51,7 +56,7 @@ class IntentLauncherModule(
 		moduleRegistryDelegate.onCreate(moduleRegistry)
 	}
 
-	fun mapToBundle(map: Map<String, Any?>): Bundle {
+	private fun mapToBundle(map: Map<String, Any?>): Bundle {
 		val bundle: Bundle = Bundle()
 		for (key: String in map.keys) {
 			var value = map.get(key)
@@ -84,7 +89,27 @@ class IntentLauncherModule(
 		return bundle
 	}
 
-	fun createIntent(params: Map<String, Any?>): Intent {
+	private fun hasReadPermission(path: String): Boolean {
+		val permissionModuleInterface: FilePermissionModuleInterface by moduleRegistry()
+		return permissionModuleInterface.getPathPermissions(context, path).contains(Permission.READ)
+	}
+
+	private fun getFileForUri(uriString: String): File {
+		var uri = Uri.parse(uriString)
+		val path = uri.path
+
+		if (path == null) {
+			throw InvalidArgumentException("The given Uri doesn't contain valid path.")
+		}
+
+		if (!hasReadPermission(path)) {
+			throw InvalidArgumentException("No permission to read file under given Uri.")
+		}
+
+		return File(path)
+	}
+
+	private fun createIntent(params: Map<String, Any?>): Intent {
 		val intent = Intent()
 
 		if (params.containsKey(ATTR_CLASS_NAME)) {
@@ -119,6 +144,16 @@ class IntentLauncherModule(
 			if (extra.containsKey(ATTR_EXTRA_INTENT)) {
 				val extraIntent = createIntent(extra.get(ATTR_EXTRA_INTENT) as Map<String, Any?>)
 				extra.set(ATTR_EXTRA_INTENT, extraIntent)
+			}
+
+			if (extra.containsKey(ATTR_EXTRA_STREAM)) {
+				val extraStreamFile = getFileForUri(extra.get(ATTR_EXTRA_STREAM) as String)
+				val contentUri = FileProvider.getUriForFile(
+					context,
+					context.applicationInfo.packageName + ".IntentLauncherFileProvider",
+					extraStreamFile
+				)
+				extra.set(ATTR_EXTRA_STREAM, contentUri)
 			}
 			
 			intent.putExtras(mapToBundle(extra))
